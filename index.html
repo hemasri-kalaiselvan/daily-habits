@@ -33,7 +33,7 @@ button.ghost{background:none;color:var(--mute);border:1px solid var(--line);padd
 .t.on::before{content:"✓ "}
 .row{display:flex;gap:6px;align-items:center;margin-top:10px;flex-wrap:wrap}
 .row input{width:66px;padding:9px;border:1px solid var(--line);border-radius:10px;font:inherit}
-.row input.w{width:100%}
+.row input.w{flex:1;min-width:0;width:auto}
 .stat{cursor:pointer;text-align:center}
 .chip{display:inline-flex;gap:8px;background:var(--gs);color:var(--g);border-radius:20px;padding:4px 10px;margin:0 6px 6px 0;font-size:14px}
 .chip i{font-style:normal;color:var(--r);padding:0 2px}
@@ -97,18 +97,25 @@ const weekKeys=k=>Array.from({length:7},(_,i)=>add(mon(k),i));
 const fmtD=k=>pd(k).toLocaleDateString(undefined,{day:'numeric',month:'short'});
 const lab=k=>k===T?'Today':pd(k).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
 
-const G=[
+const DEFG=[
 ['Fitness',[['walk','Walking'],['yoga','Yoga'],['med','Meditation'],['ex','Exercise'],['warm','Warm-up'],['str','Strengthening'],['awake','Day-time awake']]],
-['Food',[['fig','Figs'],['grape','Dry grapes'],['badam','Badam'],['pump','Pumpkin seeds'],['walnut','Walnut'],['fruit','Fruits'],['kp','புங்க இலை'],['ka','Arogh'],['l1','தேத்தாங்கட்டை'],['l2','சவனப்பிரகாஸ்']]],
+['Food',[['fig','Figs'],['grape','Dry grapes'],['badam','Badam'],['pump','Pumpkin seeds'],['walnut','Walnut'],['fruit','Fruits'],['kp','புங்க இலை'],['ka','Arogh'],['l1','தேத்தாங்கட்டை'],['l2','சவனப்பிரகாஸ்'],['kad','கடுக்காய்']]],
 ['Tablets',[['amukra','Amukra'],['spir','Spirulina'],['penta','Pentaphos']]],
-['Mind & prayer',[['read','Reading'],['aff','Affirmations'],['pray','Prayer'],['lamp','விளக்கேற்றுதல்'],['ram','ஸ்ரீ ராம ஜெயம்']]]];
-const ALL=[...G.flatMap(g=>g[1]),['water','Water']];
+['Mind & prayer',[['read','Reading'],['aff','Affirmations'],['pray','Prayer'],['lamp','விளக்கேற்றுதல்'],['ram','ஸ்ரீ ராம ஜெயம்']]],
+['Daily tasks',[['comb','Combing'],['kolam','Kolam']]],
+['Cooking',[['bf','Breakfast'],['lunch','Lunch'],['dinner','Dinner'],['snack','Snacks']]]];
+function listFor(ym){const L=S.lists||{};if(L[ym])return L[ym].g;const ks=Object.keys(L).filter(x=>x<ym).sort();return ks.length?L[ks[ks.length-1]].g:DEFG}
+function editList(fn,nr){const ym=V.date.slice(0,7);S.lists=S.lists||{};const g=JSON.parse(JSON.stringify(listFor(ym)));fn(g);S.lists[ym]={u:Date.now(),g};save();if(!nr)render()}
+const itemsFor=k=>[...listFor(k.slice(0,7)).flatMap(g=>g[1]),['water','Water']];
+const unionItems=ks=>{const seen={},out=[];[...new Set(ks.map(k=>k.slice(0,7)))].forEach(ym=>listFor(ym).flatMap(g=>g[1]).forEach(it=>{if(!seen[it[0]]){seen[it[0]]=1;out.push(it)}}));out.push(['water','Water']);return out};
+const newId=()=>'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const esc=t=>t.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 const done=(k,id)=>{const d=get(k),c=d.c||{};
  if(id==='water')return(d.water||0)>=GOAL;
  if(id==='walk')return sum(k,'walk')>0||!!c.walk;
  return!!c[id]};
-const cnt=k=>ALL.filter(([id])=>done(k,id)).length;
-const pct=k=>Math.round(cnt(k)/ALL.length*100);
+const cnt=k=>itemsFor(k).filter(([id])=>done(k,id)).length;
+const pct=k=>Math.round(cnt(k)/itemsFor(k).length*100);
 const streak=k=>{if(k===T&&!done(k,'walk'))k=add(k,-1);let n=0;while(n<999&&done(k,'walk')){n++;k=add(k,-1)}return n};
 
 const V={tab:'day',date:T,wk:T,mo:T.slice(0,7),yr:+T.slice(0,4),open:null};
@@ -121,25 +128,27 @@ const clk=()=>{if(!S.timer)return'';const s=Math.floor((Date.now()-S.timer.t)/10
 const nav=(label,a)=>`<div class=nav><button data-a=${a} data-n=-1>‹</button><h2>${label}</h2><button data-a=${a} data-n=1>›</button></div>`;
 
 function dayView(){
+ if(V.edit)return editView();
  const k=V.date,d=get(k),pc=pct(k),C=163.4,w=d.water||0,[y,m]=k.split('-').map(Number);
  const st=streak(k);
  return `<div class=nav><button data-a=dd data-n=-1>‹</button><div><h2>${lab(k)}</h2>${k!==T?'<a data-a=today>Back to today</a>':''}</div><button data-a=dd data-n=1>›</button></div>
 <p class="mute stat" data-a=gosync>${STAT}</p>
 <div class=sum><div><b>${fmt(sum(k,'walk'))}</b><small>${k===T?'Today':'This day'}</small></div><div><b>${fmt(sumK(weekKeys(k),'walk'))}</b><small>This week</small></div><div><b>${fmt(sumK(monthKeys(y,m-1),'walk'))}</b><small>This month</small></div></div>
 <section class="card ringrow"><svg width=72 height=72 viewBox="0 0 64 64"><circle cx=32 cy=32 r=26 fill=none stroke="#dde5da" stroke-width=7 /><circle cx=32 cy=32 r=26 fill=none stroke="#2f7d4f" stroke-width=7 stroke-linecap=round stroke-dasharray="${C*pc/100} ${C}" transform="rotate(-90 32 32)"/><text x=32 y=37 text-anchor=middle font-size=15 font-weight=700 fill="#1f2a24">${pc}%</text></svg>
-<div><b>${cnt(k)} of ${ALL.length} done</b><div class=mute>Walking streak: ${st} day${st==1?'':'s'}</div></div></section>
+<div><b>${cnt(k)} of ${itemsFor(k).length} done</b><div class=mute>Walking streak: ${st} day${st==1?'':'s'}</div></div></section>
 ${adder(k,'walk','Walking',S.timer?`<div id=clock>${clk()}</div><button class="big stop" data-a=stop>Stop</button>`:`<button class=big data-a=start>Start walking</button>`)}
 <section class=card><h3>Water <b>${w}/${GOAL}</b></h3><div>${Array.from({length:Math.max(GOAL,w)},(_,i)=>`<span class="gx ${i<w?'on':''}"></span>`).join('')}</div>
 <button class=big data-a=w data-n=1>+ 1 glass</button>
 <div class=row><input id=wc type=number inputmode=numeric min=1 placeholder=glasses><button data-a=wadd>Add</button><button class=ghost data-a=w data-n=-1>−1</button>${w?'<button class=ghost data-a=wreset>Reset</button>':''}</div></section>
-${G.map(([t,it])=>`<section class=card><h3>${t}</h3><div class=grid2>${it.map(([id,nm])=>`<button class="t ${done(k,id)?'on':''}" data-a=tog data-id=${id}>${nm}</button>`).join('')}</div></section>`).join('')}`;
+${listFor(k.slice(0,7)).map(([t,it])=>`<section class=card><h3>${t}</h3><div class=grid2>${it.map(([id,nm])=>`<button class="t ${done(k,id)?'on':''}" data-a=tog data-id=${id}>${nm}</button>`).join('')}</div></section>`).join('')}
+<div class=row><button class=ghost data-a=edit>Edit habit list (${pd(k).toLocaleDateString(undefined,{month:'long'})})</button></div>`;
 }
 
-const cell=(k,id,num)=>{const ok=done(k,id);let tx=ok?'✓':k<T?'✗':'';
+const cell=(k,id,num)=>{if(!itemsFor(k).some(x=>x[0]===id))return'<td></td>';const ok=done(k,id);let tx=ok?'✓':k<T?'✗':'';
  if(id==='water'&&num){const n=get(k).water||0;tx=n||(k<T?'0':'')}
  return `<td class="${ok?'y':k<T?'n':''}">${tx}</td>`};
 const table=(ks,lb)=>`<table><tr><th>Habit</th>${ks.map((k,i)=>`<th data-a=goto data-k=${k}>${lb(k,i)}</th>`).join('')}<th>✓</th></tr>
-${ALL.map(([id,nm])=>`<tr><td>${nm}</td>${ks.map(k=>cell(k,id,ks.length<=7)).join('')}<td><b>${ks.filter(k=>done(k,id)).length}</b></td></tr>`).join('')}
+${unionItems(ks).map(([id,nm])=>`<tr><td>${nm}</td>${ks.map(k=>cell(k,id,ks.length<=7)).join('')}<td><b>${ks.filter(k=>done(k,id)).length}</b></td></tr>`).join('')}
 <tr><td>Score %</td>${ks.map(k=>{if(k>T)return'<td></td>';const q=pct(k);return `<td style="background:rgba(47,125,79,${q/100*.85});color:${q>50?'#fff':'#1f2a24'};font-size:10px">${q}</td>`}).join('')}<td></td></tr></table>`;
 const bars=(ks,lb,top)=>{const v=ks.map(k=>sum(k,'walk')),mx=Math.max(...v,1);
  return `<div class=bars>${ks.map((k,i)=>`<div class=bc>${top&&v[i]?`<small>${(v[i]/3600).toFixed(1)}h</small>`:''}<i class="${v[i]?'':'z'}" style="height:${Math.max(3,v[i]/mx*62)}%"></i><small>${lb(k,i)}</small></div>`).join('')}</div>`};
@@ -175,6 +184,16 @@ ${V.open===i?`<div class=card>${stats(ks)}<h3>Week-wise</h3>${weeks(ks)}<h3 styl
 <input type=file id=f accept=application/json hidden>`;
 }
 
+function editView(){
+ const ym=V.date.slice(0,7),g=listFor(ym),mn=pd(ym+'-01').toLocaleDateString(undefined,{month:'long',year:'numeric'});
+ return `<div class=nav><h2 style="flex:1">Edit list: ${mn}</h2></div>
+<p class=mute>Applies to ${mn} and the months after it, until you change a later month. Renaming keeps your past ticks. Walking timer and water are always there.</p>
+${g.map(([t,it],gi)=>`<section class=card><div class=row style="margin:0 0 8px"><input class=w data-r=g data-gi=${gi} value="${esc(t)}"><button class=ghost data-a=gdel data-gi=${gi}>Delete group</button></div>
+${it.map(([id,nm],ii)=>`<div class=row style="margin:6px 0"><input class=w data-r=i data-gi=${gi} data-ii=${ii} value="${esc(nm)}"><button class=ghost data-a=idel data-gi=${gi} data-ii=${ii}>✕</button></div>`).join('')}
+<div class=row><input class=w id=new_${gi} placeholder="New item"><button data-a=iadd data-gi=${gi}>Add</button></div></section>`).join('')}
+<section class=card><div class=row style="margin:0"><input class=w id=ng placeholder="New group, e.g. Cooking"><button data-a=gadd>Add</button></div></section>
+<button class=big data-a=edone>Done</button>`}
+
 function render(){
  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===V.tab));
  $('#app').innerHTML={day:dayView,week:weekView,month:monthView,year:yearView}[V.tab]();
@@ -183,7 +202,7 @@ function render(){
 let PEND=null;
 document.addEventListener('click',e=>{
  const t=e.target.closest('[data-a],[data-t]');if(!t)return;
- if(t.dataset.t){V.tab=t.dataset.t;render();scrollTo(0,0);return}
+ if(t.dataset.t){V.tab=t.dataset.t;V.edit=false;render();scrollTo(0,0);return}
  const a=t.dataset.a,D=t.dataset,k=V.date,n=+D.n;
  const sure=id=>{if(PEND===id){PEND=null;return true}PEND=id;t.textContent='Tap again to confirm';setTimeout(()=>{if(PEND===id){PEND=null;render()}},3000);return false};
  if(a==='dd'){const nk=add(k,n);if(nk>T)return;V.date=nk}
@@ -202,6 +221,12 @@ document.addEventListener('click',e=>{
  else if(a==='mn'){const[y,m]=V.mo.split('-').map(Number),s=iso(new Date(y,m-1+n,1)).slice(0,7);if(s>T.slice(0,7))return;V.mo=s}
  else if(a==='yn'){if(V.yr+n>+T.slice(0,4))return;V.yr+=n;V.open=null}
  else if(a==='open')V.open=V.open===+D.m?null:+D.m;
+ else if(a==='edit'){V.edit=true;render();scrollTo(0,0);return}
+ else if(a==='edone'){V.edit=false;render();scrollTo(0,0);return}
+ else if(a==='iadd'){const v=$('#new_'+D.gi).value.trim();if(!v)return;editList(g=>g[+D.gi][1].push([newId(),v]));return}
+ else if(a==='gadd'){const v=$('#ng').value.trim();if(!v)return;editList(g=>g.push([v,[]]));return}
+ else if(a==='idel'){if(!sure('di'+D.gi+'_'+D.ii))return;editList(g=>g[+D.gi][1].splice(+D.ii,1));return}
+ else if(a==='gdel'){if(!sure('dg'+D.gi))return;editList(g=>g.splice(+D.gi,1));return}
  else if(a==='gosync'){V.tab='year';V.open=null;render();scrollTo(0,document.body.scrollHeight);return}
  else if(a==='ghsave'){const r=$('#gh_repo').value.trim().replace(/^https?:\/\/github\.com\//,'').replace(/\.git$/,''),tk=$('#gh_tok').value.trim()||CFG.token;
   if(!/^[^\/\s]+\/[^\/\s]+$/.test(r)||!tk){setStat('☁ Enter repo as username/repo and paste a token');return}
@@ -213,9 +238,11 @@ document.addEventListener('click',e=>{
  save();render();
 });
 document.addEventListener('change',e=>{
+ const d=e.target.dataset;
+ if(d.r){const v=e.target.value.trim();if(!v)return;editList(g=>{if(d.r==='g')g[+d.gi][0]=v;else g[+d.gi][1][+d.ii][1]=v},true);return}
  if(e.target.id!=='f'||!e.target.files[0])return;
  const r=new FileReader();
- r.onload=()=>{try{const o=JSON.parse(r.result);if(!o.days)throw 0;S=o;S.timer=null;Object.values(S.days).forEach(d=>d.u=Date.now());save();render()}catch(x){setStat('☁ That file is not a valid backup')}};
+ r.onload=()=>{try{const o=JSON.parse(r.result);if(!o.days)throw 0;S=o;S.timer=null;Object.values(S.days).forEach(d=>d.u=Date.now());Object.values(S.lists||{}).forEach(l=>l.u=Date.now());save();render()}catch(x){setStat('☁ That file is not a valid backup')}};
  r.readAsText(e.target.files[0]);
 });
 function setStat(t){STAT=t;document.querySelectorAll('.stat').forEach(e=>e.textContent=t)}
@@ -230,11 +257,12 @@ async function sync(){
   let raw=null,r=await gh('GET');
   if(r.status===404)CFG.sha=null;
   else if(r.ok){const j=await r.json();CFG.sha=j.sha;raw=b64d(j.content);
-   const rem=JSON.parse(raw).days||{};let ch=false;
+   const R0=JSON.parse(raw),rem=R0.days||{};let ch=false;
    for(const k in rem)if(!S.days[k]||(rem[k].u||0)>(S.days[k].u||0)){S.days[k]=rem[k];ch=true}
+   S.lists=S.lists||{};const rl=R0.lists||{};for(const m in rl)if(!S.lists[m]||(rl[m].u||0)>(S.lists[m].u||0)){S.lists[m]=rl[m];ch=true}
    if(ch){store();render()}}
   else throw r.status;
-  const out=JSON.stringify({days:S.days});
+  const out=JSON.stringify({days:S.days,lists:S.lists||{}});
   if(out!==raw){r=await gh('PUT',{message:'habit data',content:b64e(out),sha:CFG.sha||undefined});if(!r.ok)throw r.status;CFG.sha=(await r.json()).content.sha}
   localStorage.setItem(CFG_K,JSON.stringify(CFG));
   setStat('☁ Synced '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}));
