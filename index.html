@@ -48,6 +48,8 @@ th,td{border:1px solid var(--line);padding:0;height:27px;min-width:27px;text-ali
 th{background:#dfe7dc;font-weight:600;line-height:1.15;cursor:pointer}
 td:first-child,th:first-child{position:sticky;left:0;background:#fff;text-align:left;padding:2px 6px;width:96px;min-width:96px;max-width:96px;font-size:11.5px;line-height:1.15;z-index:1}
 th:first-child{background:#dfe7dc}
+td.g0{background:#f8f0de}
+td.g1{background:#e6ecf7}
 td.y{background:var(--gs);color:var(--g);font-weight:700}
 td.n{background:var(--rs);color:var(--r)}
 .bars{display:flex;align-items:flex-end;gap:2px;height:120px}
@@ -107,7 +109,7 @@ const DEFG=[
 function listFor(ym){const L=S.lists||{};if(L[ym])return L[ym].g;const ks=Object.keys(L).filter(x=>x<ym).sort();return ks.length?L[ks[ks.length-1]].g:DEFG}
 function editList(fn,nr){const ym=V.date.slice(0,7);S.lists=S.lists||{};const g=JSON.parse(JSON.stringify(listFor(ym)));fn(g);S.lists[ym]={u:Date.now(),g};save();if(!nr)render()}
 const itemsFor=k=>[...listFor(k.slice(0,7)).flatMap(g=>g[1]),['water','Water']];
-const unionItems=ks=>{const seen={},out=[];[...new Set(ks.map(k=>k.slice(0,7)))].forEach(ym=>listFor(ym).flatMap(g=>g[1]).forEach(it=>{if(!seen[it[0]]){seen[it[0]]=1;out.push(it)}}));out.push(['water','Water']);return out};
+const unionItems=ks=>{const seen={},out=[];[...new Set(ks.map(k=>k.slice(0,7)))].forEach(ym=>listFor(ym).forEach(g=>g[1].forEach(it=>{if(!seen[it[0]]){seen[it[0]]=1;out.push([it[0],it[1],ym+g[0]])}})));let wi=-1;out.forEach((x,i)=>{if(x[2].endsWith('Food'))wi=i});if(wi<0)out.push(['water','Water','water']);else out.splice(wi+1,0,['water','Water',out[wi][2]]);return out};
 const newId=()=>'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 const esc=t=>t.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 const done=(k,id)=>{const d=get(k),c=d.c||{};
@@ -148,7 +150,7 @@ const cell=(k,id,num)=>{if(!itemsFor(k).some(x=>x[0]===id))return'<td></td>';con
  if(id==='water'&&num){const n=get(k).water||0;tx=n||(k<T?'0':'')}
  return `<td class="${ok?'y':k<T?'n':''}">${tx}</td>`};
 const table=(ks,lb)=>`<table><tr><th>Habit</th>${ks.map((k,i)=>`<th data-a=goto data-k=${k}>${lb(k,i)}</th>`).join('')}<th>✓</th></tr>
-${unionItems(ks).map(([id,nm])=>`<tr><td>${nm}</td>${ks.map(k=>cell(k,id,ks.length<=7)).join('')}<td><b>${ks.filter(k=>done(k,id)).length}</b></td></tr>`).join('')}
+${unionItems(ks).map(([id,nm],i,a)=>`<tr><td class="g${a.slice(0,i+1).reduce((n,x,j)=>j&&x[2]!==a[j-1][2]?n+1:n,0)%2}">${nm}</td>${ks.map(k=>cell(k,id,ks.length<=7)).join('')}<td><b>${ks.filter(k=>done(k,id)).length}</b></td></tr>`).join('')}
 <tr><td>Score %</td>${ks.map(k=>{if(k>T)return'<td></td>';const q=pct(k);return `<td style="background:rgba(47,125,79,${q/100*.85});color:${q>50?'#fff':'#1f2a24'};font-size:10px">${q}</td>`}).join('')}<td></td></tr></table>`;
 const bars=(ks,lb,top)=>{const v=ks.map(k=>sum(k,'walk')),mx=Math.max(...v,1);
  return `<div class=bars>${ks.map((k,i)=>`<div class=bc>${top&&v[i]?`<small>${(v[i]/3600).toFixed(1)}h</small>`:''}<i class="${v[i]?'':'z'}" style="height:${Math.max(3,v[i]/mx*62)}%"></i><small>${lb(k,i)}</small></div>`).join('')}</div>`};
