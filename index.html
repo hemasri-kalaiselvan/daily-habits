@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2f7d4f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Daily Habits</title>
+<style>
+:root{--bg:#f1f5ef;--card:#fff;--ink:#1f2a24;--mute:#6b7a70;--line:#dde5da;--g:#2f7d4f;--gs:#dff0e5;--r:#c8453a;--rs:#fbe4e0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 0 calc(72px + env(safe-area-inset-bottom))}
+main{max-width:560px;margin:0 auto;padding:12px}
+h2{font-family:Georgia,serif;margin:0;font-size:20px}
+.mute{color:var(--mute);font-size:14px;margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.card h3{margin:0 0 10px;font-size:15px;display:flex;justify-content:space-between;align-items:center}
+.card h3 b{font:700 20px Georgia,serif;color:var(--g)}
+button{font:inherit;border:0;border-radius:10px;padding:10px 14px;background:var(--g);color:#fff;cursor:pointer}
+button.ghost{background:none;color:var(--mute);border:1px solid var(--line);padding:6px 10px;font-size:13px}
+.nav{display:flex;align-items:center;justify-content:space-between;margin:4px 0 12px;text-align:center}
+.nav button{background:var(--gs);color:var(--g);width:44px;font-size:20px;padding:6px}
+.nav a{color:var(--g);font-size:13px;text-decoration:underline}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.sum div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 4px;text-align:center}
+.sum b{display:block;font:700 19px Georgia,serif;color:var(--g)}
+.sum small{color:var(--mute);font-size:12px}
+.ringrow{display:flex;align-items:center;gap:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.t{background:var(--rs);color:#9b2c1d;border:1px solid #f1c6c0;text-align:left;padding:12px 10px;font-size:15px;line-height:1.25}
+.t.on{background:var(--g);color:#fff;border-color:var(--g)}
+.t.on::before{content:"✓ "}
+.row{display:flex;gap:6px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.row input{width:66px;padding:9px;border:1px solid var(--line);border-radius:10px;font:inherit}
+.row input.w{width:100%}
+.stat{cursor:pointer;text-align:center}
+.chip{display:inline-flex;gap:8px;background:var(--gs);color:var(--g);border-radius:20px;padding:4px 10px;margin:0 6px 6px 0;font-size:14px}
+.chip i{font-style:normal;color:var(--r);padding:0 2px}
+.big{width:100%;padding:16px;font-size:18px}
+.stop{background:var(--r)}
+#clock{font:700 36px Georgia,serif;text-align:center;margin:4px 0 10px}
+.gx{display:inline-block;width:22px;height:28px;border:2px solid var(--line);border-radius:3px 3px 9px 9px;margin:0 5px 8px 0}
+.gx.on{background:var(--g);border-color:var(--g)}
+.sc{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:12px}
+table{border-collapse:collapse;font-size:12px;width:100%}
+th,td{border:1px solid var(--line);padding:0;height:27px;min-width:27px;text-align:center}
+th{background:#dfe7dc;font-weight:600;line-height:1.15;cursor:pointer}
+td:first-child,th:first-child{position:sticky;left:0;background:#fff;text-align:left;padding:2px 6px;width:96px;min-width:96px;max-width:96px;font-size:11.5px;line-height:1.15;z-index:1}
+th:first-child{background:#dfe7dc}
+td.y{background:var(--gs);color:var(--g);font-weight:700}
+td.n{background:var(--rs);color:var(--r)}
+.bars{display:flex;align-items:flex-end;gap:2px;height:120px}
+.bc{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.bc i{width:100%;background:var(--g);border-radius:3px 3px 0 0}
+.bc i.z{background:var(--rs)}
+.bc small{font-size:10px;color:var(--mute)}
+.li{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)}
+.li small{color:var(--mute)}.li b{color:var(--g)}
+.mh{width:100%;display:flex;justify-content:space-between;align-items:center;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px}
+.mh span{flex:1;text-align:left;margin-right:14px}
+.mh>b{color:var(--g);font-family:Georgia,serif}
+.pb{height:6px;background:var(--line);border-radius:3px;margin-top:6px}
+.pb i{display:block;height:100%;background:var(--g);border-radius:3px}
+#tabs{z-index:20;position:fixed;left:0;right:0;bottom:0;display:flex;background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+#tabs button{flex:1;background:none;color:var(--mute);border-radius:0;padding:15px 0;font-size:14px}
+#tabs button.on{color:var(--g);font-weight:700;box-shadow:inset 0 3px var(--g)}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<nav id="tabs">
+<button data-t="day">Today</button><button data-t="week">Week</button><button data-t="month">Month</button><button data-t="year">Year</button>
+</nav>
+<script>
+const K='habitTracker.v1',GOAL=8;
+let S=null;try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
+S=S||{days:{},timer:null};
+const CFG_K='habitTracker.gh';
+let CFG={};try{CFG=JSON.parse(localStorage.getItem(CFG_K))||{}}catch(e){}
+let STAT=CFG.token?'☁ Sync ready':'☁ Not synced – tap to set up',tm;
+const store=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
+const save=()=>{store();clearTimeout(tm);tm=setTimeout(sync,2500)};
+const $=s=>document.querySelector(s);
+const p=n=>String(n).padStart(2,'0'),iso=d=>d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
+const pd=k=>{const[a,b,c]=k.split('-');return new Date(+a,b-1,+c)};
+const add=(k,n)=>{const d=pd(k);d.setDate(d.getDate()+n);return iso(d)};
+const mon=k=>add(k,-((pd(k).getDay()+6)%7));
+const T=iso(new Date());
+const get=k=>S.days[k]||{};
+const mut=k=>{const d=S.days[k]||(S.days[k]={c:{},walk:[],water:0});d.u=Date.now();return d};
+const sum=(k,key)=>(get(k)[key]||[]).reduce((a,b)=>a+b,0);
+const sumK=(ks,key)=>ks.reduce((a,k)=>a+sum(k,key),0);
+const fmt=s=>{if(s>0&&s<60)return Math.round(s)+'s';const m=Math.round(s/60);return m>=60?Math.floor(m/60)+'h '+p(m%60)+'m':m+'m'};
+const monthKeys=(y,m)=>Array.from({length:new Date(y,m+1,0).getDate()},(_,i)=>`${y}-${p(m+1)}-${p(i+1)}`);
+const weekKeys=k=>Array.from({length:7},(_,i)=>add(mon(k),i));
+const fmtD=k=>pd(k).toLocaleDateString(undefined,{day:'numeric',month:'short'});
+const lab=k=>k===T?'Today':pd(k).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
+
+const G=[
+['Fitness',[['walk','Walking'],['yoga','Yoga'],['med','Meditation'],['ex','Exercise'],['warm','Warm-up'],['str','Strengthening'],['awake','Day-time awake']]],
+['Food',[['fig','Figs'],['grape','Dry grapes'],['badam','Badam'],['pump','Pumpkin seeds'],['walnut','Walnut'],['fruit','Fruits'],['kp','புங்க இலை'],['ka','Arogh'],['l1','தேத்தாங்கட்டை'],['l2','சவனப்பிரகாஸ்']]],
+['Tablets',[['amukra','Amukra'],['spir','Spirulina'],['penta','Pentaphos']]],
+['Mind & prayer',[['read','Reading'],['aff','Affirmations'],['pray','Prayer'],['lamp','விளக்கேற்றுதல்'],['ram','ஸ்ரீ ராம ஜெயம்']]]];
+const ALL=[...G.flatMap(g=>g[1]),['water','Water']];
+const done=(k,id)=>{const d=get(k),c=d.c||{};
+ if(id==='water')return(d.water||0)>=GOAL;
+ if(id==='walk')return sum(k,'walk')>0||!!c.walk;
+ return!!c[id]};
+const cnt=k=>ALL.filter(([id])=>done(k,id)).length;
+const pct=k=>Math.round(cnt(k)/ALL.length*100);
+const streak=k=>{if(k===T&&!done(k,'walk'))k=add(k,-1);let n=0;while(n<999&&done(k,'walk')){n++;k=add(k,-1)}return n};
+
+const V={tab:'day',date:T,wk:T,mo:T.slice(0,7),yr:+T.slice(0,4),open:null};
+
+const chips=(k,key)=>(get(k)[key]||[]).map((s,i)=>`<span class=chip>${fmt(s)}<i data-a=del data-key=${key} data-i=${i}>×</i></span>`).join('');
+const adder=(k,key,title,extra='')=>`<section class=card><h3>${title}<b>${fmt(sum(k,key))}</b></h3>${extra}<div>${chips(k,key)}</div>
+<div class=row><input id=h_${key} type=number inputmode=decimal min=0 placeholder=hrs><span>h</span><input id=m_${key} type=number inputmode=numeric min=0 placeholder=min><span>m</span><button data-a=add data-key=${key}>Add</button></div>
+${sum(k,key)?`<div class=row><button class=ghost data-a=reset data-key=${key} data-l="${title}">Reset ${title.toLowerCase()}</button></div>`:''}</section>`;
+const clk=()=>{if(!S.timer)return'';const s=Math.floor((Date.now()-S.timer.t)/1000);return p(Math.floor(s/3600))+':'+p(Math.floor(s/60)%60)+':'+p(s%60)};
+const nav=(label,a)=>`<div class=nav><button data-a=${a} data-n=-1>‹</button><h2>${label}</h2><button data-a=${a} data-n=1>›</button></div>`;
+
+function dayView(){
+ const k=V.date,d=get(k),pc=pct(k),C=163.4,w=d.water||0,[y,m]=k.split('-').map(Number);
+ const st=streak(k);
+ return `<div class=nav><button data-a=dd data-n=-1>‹</button><div><h2>${lab(k)}</h2>${k!==T?'<a data-a=today>Back to today</a>':''}</div><button data-a=dd data-n=1>›</button></div>
+<p class="mute stat" data-a=gosync>${STAT}</p>
+<div class=sum><div><b>${fmt(sum(k,'walk'))}</b><small>${k===T?'Today':'This day'}</small></div><div><b>${fmt(sumK(weekKeys(k),'walk'))}</b><small>This week</small></div><div><b>${fmt(sumK(monthKeys(y,m-1),'walk'))}</b><small>This month</small></div></div>
+<section class="card ringrow"><svg width=72 height=72 viewBox="0 0 64 64"><circle cx=32 cy=32 r=26 fill=none stroke="#dde5da" stroke-width=7 /><circle cx=32 cy=32 r=26 fill=none stroke="#2f7d4f" stroke-width=7 stroke-linecap=round stroke-dasharray="${C*pc/100} ${C}" transform="rotate(-90 32 32)"/><text x=32 y=37 text-anchor=middle font-size=15 font-weight=700 fill="#1f2a24">${pc}%</text></svg>
+<div><b>${cnt(k)} of ${ALL.length} done</b><div class=mute>Walking streak: ${st} day${st==1?'':'s'}</div></div></section>
+${adder(k,'walk','Walking',S.timer?`<div id=clock>${clk()}</div><button class="big stop" data-a=stop>Stop</button>`:`<button class=big data-a=start>Start walking</button>`)}
+<section class=card><h3>Water <b>${w}/${GOAL}</b></h3><div>${Array.from({length:Math.max(GOAL,w)},(_,i)=>`<span class="gx ${i<w?'on':''}"></span>`).join('')}</div>
+<button class=big data-a=w data-n=1>+ 1 glass</button>
+<div class=row><input id=wc type=number inputmode=numeric min=1 placeholder=glasses><button data-a=wadd>Add</button><button class=ghost data-a=w data-n=-1>−1</button>${w?'<button class=ghost data-a=wreset>Reset</button>':''}</div></section>
+${G.map(([t,it])=>`<section class=card><h3>${t}</h3><div class=grid2>${it.map(([id,nm])=>`<button class="t ${done(k,id)?'on':''}" data-a=tog data-id=${id}>${nm}</button>`).join('')}</div></section>`).join('')}`;
+}
+
+const cell=(k,id,num)=>{const ok=done(k,id);let tx=ok?'✓':k<T?'✗':'';
+ if(id==='water'&&num){const n=get(k).water||0;tx=n||(k<T?'0':'')}
+ return `<td class="${ok?'y':k<T?'n':''}">${tx}</td>`};
+const table=(ks,lb)=>`<table><tr><th>Habit</th>${ks.map((k,i)=>`<th data-a=goto data-k=${k}>${lb(k,i)}</th>`).join('')}<th>✓</th></tr>
+${ALL.map(([id,nm])=>`<tr><td>${nm}</td>${ks.map(k=>cell(k,id,ks.length<=7)).join('')}<td><b>${ks.filter(k=>done(k,id)).length}</b></td></tr>`).join('')}
+<tr><td>Score %</td>${ks.map(k=>{if(k>T)return'<td></td>';const q=pct(k);return `<td style="background:rgba(47,125,79,${q/100*.85});color:${q>50?'#fff':'#1f2a24'};font-size:10px">${q}</td>`}).join('')}<td></td></tr></table>`;
+const bars=(ks,lb,top)=>{const v=ks.map(k=>sum(k,'walk')),mx=Math.max(...v,1);
+ return `<div class=bars>${ks.map((k,i)=>`<div class=bc>${top&&v[i]?`<small>${(v[i]/3600).toFixed(1)}h</small>`:''}<i class="${v[i]?'':'z'}" style="height:${Math.max(3,v[i]/mx*62)}%"></i><small>${lb(k,i)}</small></div>`).join('')}</div>`};
+const stats=ks=>{const a=ks.filter(k=>sum(k,'walk')>0).length,past=ks.filter(k=>k<=T),sc=past.length?Math.round(past.reduce((x,k)=>x+pct(k),0)/past.length):0;
+ return `<div class=sum><div><b>${fmt(sumK(ks,'walk'))}</b><small>Walked</small></div><div><b>${a}</b><small>Days walked</small></div><div><b>${sc}%</b><small>Avg score</small></div></div>`};
+const weeks=ks=>{const m={};ks.forEach(k=>(m[mon(k)]=m[mon(k)]||[]).push(k));
+ return Object.values(m).map((a,i)=>`<div class=li><span>Week ${i+1} <small>${fmtD(a[0])} – ${fmtD(a[a.length-1])}</small></span><b>${fmt(sumK(a,'walk'))}</b></div>`).join('')};
+const daysList=ks=>ks.filter(k=>sum(k,'walk')>0).map(k=>`<div class=li data-a=goto data-k=${k}><span>${lab(k)}</span><b>${fmt(sum(k,'walk'))}</b></div>`).join('')||'<p class=mute>No walks logged.</p>';
+
+function weekView(){
+ const ks=weekKeys(V.wk);
+ return `${nav(fmtD(ks[0])+' – '+fmtD(ks[6]),'wn')}${stats(ks)}<div class=sc>${table(ks,(k,i)=>'MTWTFSS'[i]+'<br>'+(+k.slice(8)))}</div>
+<section class=card><h3>Walking per day</h3>${bars(ks,(k,i)=>'MTWTFSS'[i],true)}</section>`;
+}
+function monthView(){
+ const[y,m]=V.mo.split('-').map(Number),ks=monthKeys(y,m-1);
+ return `${nav(new Date(y,m-1,1).toLocaleDateString(undefined,{month:'long',year:'numeric'}),'mn')}${stats(ks)}<div class=sc>${table(ks,k=>+k.slice(8))}</div>
+<section class=card><h3>Walking per day</h3>${bars(ks,k=>+k.slice(8),false)}</section>
+<section class=card><h3>Week-wise</h3>${weeks(ks)}</section>`;
+}
+function yearView(){
+ const mk=Array.from({length:12},(_,i)=>monthKeys(V.yr,i)),tot=mk.map(ks=>sumK(ks,'walk')),mx=Math.max(...tot,1);
+ return `${nav(V.yr,'yn')}${stats(mk.flat())}
+${mk.map((ks,i)=>`<button class=mh data-a=open data-m=${i}><span><b>${new Date(V.yr,i,1).toLocaleDateString(undefined,{month:'long'})}</b><div class=pb><i style="width:${tot[i]/mx*100}%"></i></div></span><b>${fmt(tot[i])}</b></button>
+${V.open===i?`<div class=card>${stats(ks)}<h3>Week-wise</h3>${weeks(ks)}<h3 style="margin-top:14px">Day-wise</h3>${daysList(ks)}</div>`:''}`).join('')}
+<section class=card><h3>GitHub sync</h3><p class="mute stat">${STAT}</p>
+<p class=mute>Saves your data to a private GitHub repo, so it survives clearing the browser or changing phones. Use a fine-grained token with Contents: read &amp; write on that one repo.</p>
+<div class=row><input class=w id=gh_repo placeholder="username/habit-data" value="${CFG.repo||''}"></div>
+<div class=row><input class=w id=gh_tok type=password placeholder="${CFG.token?'Token saved (blank = keep)':'Paste token'}"></div>
+<div class=row><input class=w id=gh_path placeholder="habits.json" value="${CFG.path||''}"></div>
+<div class=row><button data-a=ghsave>Save &amp; sync</button>${CFG.token?'<button class=ghost data-a=ghoff>Disconnect</button>':''}</div></section>
+<section class=card><h3>Backup file</h3><div class=row><button data-a=exp>Export</button><button class=ghost data-a=imp>Import</button></div></section>
+<input type=file id=f accept=application/json hidden>`;
+}
+
+function render(){
+ document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===V.tab));
+ $('#app').innerHTML={day:dayView,week:weekView,month:monthView,year:yearView}[V.tab]();
+}
+
+let PEND=null;
+document.addEventListener('click',e=>{
+ const t=e.target.closest('[data-a],[data-t]');if(!t)return;
+ if(t.dataset.t){V.tab=t.dataset.t;render();scrollTo(0,0);return}
+ const a=t.dataset.a,D=t.dataset,k=V.date,n=+D.n;
+ const sure=id=>{if(PEND===id){PEND=null;return true}PEND=id;t.textContent='Tap again to confirm';setTimeout(()=>{if(PEND===id){PEND=null;render()}},3000);return false};
+ if(a==='dd'){const nk=add(k,n);if(nk>T)return;V.date=nk}
+ else if(a==='today')V.date=T;
+ else if(a==='goto'){V.date=D.k;V.tab='day';scrollTo(0,0)}
+ else if(a==='start'){S.timer={t:Date.now(),k:T}}
+ else if(a==='stop'&&S.timer){mut(S.timer.k).walk.push(Math.max(1,Math.round((Date.now()-S.timer.t)/1000)));S.timer=null}
+ else if(a==='add'){const h=parseFloat($('#h_'+D.key).value)||0,m=parseFloat($('#m_'+D.key).value)||0,s=Math.round(h*3600+m*60);if(s<=0)return;mut(k)[D.key].push(s)}
+ else if(a==='del')mut(k)[D.key].splice(+D.i,1);
+ else if(a==='reset'){if(!sure('r'+D.key))return;mut(k)[D.key]=[]}
+ else if(a==='tog'){const c=mut(k).c;c[D.id]=!c[D.id]}
+ else if(a==='w'){const d=mut(k);d.water=Math.max(0,(d.water||0)+n)}
+ else if(a==='wadd'){const v=parseInt($('#wc').value);if(!(v>0))return;mut(k).water+=v}
+ else if(a==='wreset'){if(!sure('wr'))return;mut(k).water=0}
+ else if(a==='wn'){const nk=add(V.wk,7*n);if(mon(nk)>T)return;V.wk=nk}
+ else if(a==='mn'){const[y,m]=V.mo.split('-').map(Number),s=iso(new Date(y,m-1+n,1)).slice(0,7);if(s>T.slice(0,7))return;V.mo=s}
+ else if(a==='yn'){if(V.yr+n>+T.slice(0,4))return;V.yr+=n;V.open=null}
+ else if(a==='open')V.open=V.open===+D.m?null:+D.m;
+ else if(a==='gosync'){V.tab='year';V.open=null;render();scrollTo(0,document.body.scrollHeight);return}
+ else if(a==='ghsave'){const r=$('#gh_repo').value.trim().replace(/^https?:\/\/github\.com\//,'').replace(/\.git$/,''),tk=$('#gh_tok').value.trim()||CFG.token;
+  if(!/^[^\/\s]+\/[^\/\s]+$/.test(r)||!tk){setStat('☁ Enter repo as username/repo and paste a token');return}
+  CFG={repo:r,token:tk,path:$('#gh_path').value.trim()||'habits.json',sha:null};localStorage.setItem(CFG_K,JSON.stringify(CFG));sync();return}
+ else if(a==='ghoff'){if(!sure('off'))return;CFG={};localStorage.removeItem(CFG_K);setStat('☁ Not synced – tap to set up');render();return}
+ else if(a==='exp'){const l=document.createElement('a');l.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));l.download='habits-'+T+'.json';l.click();return}
+ else if(a==='imp'){$('#f').click();return}
+ else return;
+ save();render();
+});
+document.addEventListener('change',e=>{
+ if(e.target.id!=='f'||!e.target.files[0])return;
+ const r=new FileReader();
+ r.onload=()=>{try{const o=JSON.parse(r.result);if(!o.days)throw 0;S=o;S.timer=null;Object.values(S.days).forEach(d=>d.u=Date.now());save();render()}catch(x){setStat('☁ That file is not a valid backup')}};
+ r.readAsText(e.target.files[0]);
+});
+function setStat(t){STAT=t;document.querySelectorAll('.stat').forEach(e=>e.textContent=t)}
+const b64e=s=>btoa(unescape(encodeURIComponent(s))),b64d=s=>decodeURIComponent(escape(atob(s.replace(/\s/g,''))));
+const gh=(m,b)=>fetch(`https://api.github.com/repos/${CFG.repo}/contents/${CFG.path||'habits.json'}${m==='GET'?'?t='+Date.now():''}`,{method:m,headers:{Authorization:'Bearer '+CFG.token,Accept:'application/vnd.github+json'},body:b?JSON.stringify(b):undefined});
+let busy=false,again=false;
+async function sync(){
+ if(!CFG.token||!CFG.repo)return;
+ if(busy){again=true;return}
+ busy=true;setStat('☁ Syncing…');
+ try{
+  let raw=null,r=await gh('GET');
+  if(r.status===404)CFG.sha=null;
+  else if(r.ok){const j=await r.json();CFG.sha=j.sha;raw=b64d(j.content);
+   const rem=JSON.parse(raw).days||{};let ch=false;
+   for(const k in rem)if(!S.days[k]||(rem[k].u||0)>(S.days[k].u||0)){S.days[k]=rem[k];ch=true}
+   if(ch){store();render()}}
+  else throw r.status;
+  const out=JSON.stringify({days:S.days});
+  if(out!==raw){r=await gh('PUT',{message:'habit data',content:b64e(out),sha:CFG.sha||undefined});if(!r.ok)throw r.status;CFG.sha=(await r.json()).content.sha}
+  localStorage.setItem(CFG_K,JSON.stringify(CFG));
+  setStat('☁ Synced '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}));
+ }catch(e){setStat('☁ Not synced ('+(e===401||e===403?'check token':e===404?'repo not found':'offline? will retry')+')');if(e===409||e===422)setTimeout(sync,1500)}
+ busy=false;
+ if(again){again=false;sync()}
+}
+setInterval(()=>{const c=$('#clock');if(c)c.textContent=clk()},1000);
+render();
+if(CFG.token)sync();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});
+</script>
+</body>
+</html>
